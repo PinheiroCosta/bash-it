@@ -21,7 +21,8 @@ function _dynamic_clock_icon {
 function _command_duration() {
 	[[ -n "${BASH_IT_COMMAND_DURATION:-}" ]] || return
 
-	local command_duration=0 command_start="${COMMAND_DURATION_START_SECONDS:-0}"
+	local command_duration=0 
+	command_start="${COMMAND_DURATION_START_SECONDS:-0}"
 	local -i minutes=0 seconds=0 deciseconds=0
 	local -i command_start_seconds="${command_start%.*}"
 	local -i command_start_deciseconds=$((10#${command_start##*.}))
