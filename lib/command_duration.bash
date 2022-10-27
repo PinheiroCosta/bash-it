@@ -2,12 +2,20 @@
 #
 # Functions for measuring and reporting how long a command takes to run.
 
-: "${COMMAND_DURATION_START_SECONDS:=${EPOCHREALTIME:-$SECONDS}}"
+# Get shell duration in decimal format regardless of runtime locale.
+# Notice: This function runs as a sub-shell - notice '(' vs '{'.
+function _shell_duration_en() (
+	# DFARREL You would think LC_NUMERIC would do it, but not working in my local
+	LC_ALL='en_US.UTF-8'
+	printf "%s" "${EPOCHREALTIME:-$SECONDS}"
+)
+
+: "${COMMAND_DURATION_START_SECONDS:=$(_shell_duration_en)}"
 : "${COMMAND_DURATION_ICON:=🕘}"
 : "${COMMAND_DURATION_MIN_SECONDS:=1}"
 
 function _command_duration_pre_exec() {
-	COMMAND_DURATION_START_SECONDS="${EPOCHREALTIME:-$SECONDS}"
+	COMMAND_DURATION_START_SECONDS="$(_shell_duration_en)"
 }
 
 function _dynamic_clock_icon {
@@ -27,7 +35,8 @@ function _command_duration() {
 	local -i command_start_seconds="${command_start%.*}"
 	local -i command_start_deciseconds=$((10#${command_start##*.}))
 	command_start_deciseconds="${command_start_deciseconds:0:1}"
-	local current_time="${EPOCHREALTIME:-$SECONDS}"
+	local current_time
+	current_time="$(_shell_duration_en)"
 	local -i current_time_seconds="${current_time%.*}"
 	local -i current_time_deciseconds="$((10#${current_time##*.}))"
 	current_time_deciseconds="${current_time_deciseconds:0:1}"
